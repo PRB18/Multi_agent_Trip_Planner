@@ -16,7 +16,7 @@ def ask_gemini(
     system_prompt: str, 
     user_prompt: str, 
     model: str = "gemini-2.5-flash",
-    temperature: float = 0.2
+    temperature: float = 0.1
 ) -> str:
     """Sends system and user prompt to Gemini with controlled temperature for grounded responses."""
     config = types.GenerateContentConfig(

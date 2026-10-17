@@ -41,6 +41,9 @@ The user is learning while building. They write the code. The assistant explains
 | `llm_client.py` | Thin wrapper around Gemini API. Exports `ask_gemini(system_prompt, user_prompt)`. Shared by all agents. |
 | `single_agent.py` | Stage 1 baseline. One function `build_prompt()`, one LLM call, full itinerary output. |
 | `itinerary.md` | Saved output of `single_agent.py`. Serves as the benchmark to compare multi-agent output against. |
+| `naive_multi_agent.py` | Stage 2: Research Agent (`research_agent`) finding structured options and unit prices. |
+| `budget_agent.py` | Stage 2: Budget Agent (`budget_agent`) auditing costs and calculating bottom-up math. |
+| `main_start.py` | Stage 2: Entry point chaining the agents sequentially. |
 | `.env` | Contains `GEMINI_API_KEY=...` (never committed) |
 | `.env.example` | Template showing which env vars are needed |
 | `.gitignore` | Excludes `.env`, `__pycache__`, etc. |
@@ -53,9 +56,9 @@ The user is learning while building. They write the code. The assistant explains
 
 | Agent | Job |
 |---|---|
-| **Research Agent** | Finds trains, hotels, activities, food options based on destination + preferences. Returns raw options — does NOT plan or budget. |
-| **Budget Agent** | Takes Research's picks. Checks each one against the per-person budget. Flags what's too expensive. Does bottom-up math. |
-| **Logistics Agent** | Takes Budget-approved picks. Sequences them into a realistic day-by-day plan. Enforces geographic clustering, travel time realism. |
+| **Research Agent** | Finds trains, hotels, activities, food options based on destination + preferences. Returns raw options with unit prices — does NOT plan or budget. (Built!) |
+| **Budget Agent** | Takes Research's picks. Checks each one against the per-person budget. Flags what's too expensive. Does bottom-up math. (Built!) |
+| **Logistics Agent** | Takes Budget-approved picks. Sequences them into a realistic day-by-day plan. Enforces geographic clustering, travel time realism. (Next!) |
 | **Coordinator** | The orchestrator. Calls agents in order. When Budget rejects a Research pick, sends it back to Research to revise. Capped at 3 retries. |
 
 ---
@@ -65,9 +68,9 @@ The user is learning while building. They write the code. The assistant explains
 | Stage | Status | Description |
 |---|---|---|
 | **1** | ✅ DONE | Single agent in `single_agent.py`. One prompt, one LLM call, full itinerary. Baseline saved to `itinerary.md`. |
-| **2** | 🔜 NEXT | Split into 4 Python functions. Naive context passing: each agent gets ALL previous agents' raw text pasted into its prompt. Deliberately wasteful — that's the point. New file: `naive_multi_agent.py`. |
+| **2** | 🟡 IN PROGRESS | Split into 4 Python functions. Naive context passing. Research & Budget agents built and verified in `main_start.py`. Next: Logistics & Coordinator agents. |
 | **3** | ⬜ | Log and inspect what each agent actually receives. Identify irrelevant info (Budget doesn't need travel times, Research doesn't need cost totals). |
-| **4** | ⬜ | Design a shared context object (Python dict or small class). Each agent reads/writes only the fields it needs. This is the core learning stage. |
+| **4** | ⬜ | Design a shared context object (Python dict or small class). Each agent reads/writes only the fields it needs. This is the core learning stage. Integrate live search/tools. |
 | **5** | ⬜ | Coordinator conflict loop: Budget rejects Research pick → Coordinator asks Research to revise → retry capped at 3 iterations. |
 | **6** | ⬜ (Optional) | Re-implement in LangGraph or CrewAI. Compare what the framework does vs what you built manually. |
 
